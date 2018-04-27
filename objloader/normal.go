@@ -2,6 +2,7 @@ package objloader
 
 import (
 	"bytes"
+	"errors"
 	"strconv"
 )
 
@@ -16,17 +17,29 @@ func parseNormal(buf []byte) (*Normal, error) {
 	sep := []byte(" ")
 	parts := bytes.Split(buf, sep)
 
-	x, err := strconv.ParseFloat(string(parts[1]), 64)
-	if err != nil {
+	if len(parts) != 4 {
+		return nil, errors.New("Inocorrect format")
+	}
+
+	var x, y, z float64
+	var err error
+
+	if x, err = strconv.ParseFloat(string(parts[1]), 64); err != nil {
 		return nil, err
 	}
-	y, err := strconv.ParseFloat(string(parts[2]), 64)
-	if err != nil {
+
+	if y, err = strconv.ParseFloat(string(parts[2]), 64); err != nil {
 		return nil, err
 	}
-	z, err := strconv.ParseFloat(string(parts[3]), 64)
-	if err != nil {
+
+	if z, err = strconv.ParseFloat(string(parts[3]), 64); err != nil {
 		return nil, err
 	}
-	return &Normal{x: x, y: y, z: z}, nil
+
+	return &Normal{
+		index: -1,
+		x:     x,
+		y:     y,
+		z:     z,
+	}, nil
 }
