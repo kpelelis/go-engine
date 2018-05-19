@@ -3,17 +3,18 @@ package objloader
 import (
 	"bytes"
 	"errors"
-	"strconv"
+
+	"github.com/kpelelis/go-engine/math"
 )
 
 type Normal struct {
-	index int64
-	x     float64
-	y     float64
-	z     float64
+	Index int64
+	X     float64
+	Y     float64
+	Z     float64
 }
 
-func parseNormal(buf []byte) (*Normal, error) {
+func ParseNormal(buf []byte) (*Normal, error) {
 	sep := []byte(" ")
 	parts := bytes.Split(buf, sep)
 
@@ -24,22 +25,22 @@ func parseNormal(buf []byte) (*Normal, error) {
 	var x, y, z float64
 	var err error
 
-	if x, err = strconv.ParseFloat(string(parts[1]), 64); err != nil {
+	if err = math.ParseFloat64(parts[1], &x); err != nil {
 		return nil, err
 	}
 
-	if y, err = strconv.ParseFloat(string(parts[2]), 64); err != nil {
+	if err = math.ParseFloat64(parts[2], &y); err != nil {
 		return nil, err
 	}
 
-	if z, err = strconv.ParseFloat(string(parts[3]), 64); err != nil {
+	if err = math.ParseFloat64(parts[3], &z); err != nil {
 		return nil, err
 	}
 
 	return &Normal{
-		index: -1,
-		x:     x,
-		y:     y,
-		z:     z,
+		Index: -1,
+		X:     x,
+		Y:     y,
+		Z:     z,
 	}, nil
 }

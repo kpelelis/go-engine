@@ -2,48 +2,56 @@ package objloader
 
 import (
 	"bytes"
-	"errors"
-	"strconv"
+	"fmt"
+
+	"github.com/kpelelis/go-engine/math"
 )
 
 type Vertex struct {
-	index int64
-	x     float64
-	y     float64
-	z     float64
-	w     float64
+	Index int64
+	X     float64
+	Y     float64
+	Z     float64
+	W     float64
 }
 
-func parseVertex(buf []byte) (*Vertex, error) {
+func ParseVertex(buf []byte) (*Vertex, error) {
 	buf = bytes.TrimSpace(buf)
 	sep := []byte(" ")
 	parts := bytes.Split(buf, sep)
 
+	if len(parts) < 4 || len(parts) > 5 {
+		return nil, fmt.Errorf("incorrect format: %q", buf)
+	}
+
 	var x, y, z, w float64
+	w = -1
+
 	var err error
 
-	if len(parts) < 4 || len(parts) > 5 {
-		return nil, errors.New("Incorrect Format")
-	}
-
-	if x, err = strconv.ParseFloat(string(parts[1]), 64); err != nil {
+	if err = math.ParseFloat64(parts[1], &x); err != nil {
 		return nil, err
 	}
 
-	if y, err = strconv.ParseFloat(string(parts[2]), 64); err != nil {
+	if err = math.ParseFloat64(parts[2], &y); err != nil {
 		return nil, err
 	}
 
-	if z, err = strconv.ParseFloat(string(parts[3]), 64); err != nil {
+	if err = math.ParseFloat64(parts[3], &z); err != nil {
 		return nil, err
 	}
 
-	w = -1
 	if len(parts) == 5 {
-		if w, err = strconv.ParseFloat(string(parts[4]), 64); err != nil {
+		if err = math.ParseFloat64(parts[4], &w); err != nil {
 			return nil, err
 		}
 	}
 
-	return &Vertex{index: -1, x: x, y: y, z: z, w: w}, nil
+	return &Vertex{
+		Index: -1,
+		X:     x,
+		Y:     y,
+		Z:     z,
+		W:     w,
+	}, nil
 }

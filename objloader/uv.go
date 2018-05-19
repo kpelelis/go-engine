@@ -2,42 +2,49 @@ package objloader
 
 import (
 	"bytes"
-	"errors"
-	"strconv"
+	"fmt"
+
+	"github.com/kpelelis/go-engine/math"
 )
 
 type UV struct {
-	index int64
-	u     float64
-	v     float64
-	w     float64
+	Index int64
+	U     float64
+	V     float64
+	W     float64
 }
 
-func parseUV(buf []byte) (*UV, error) {
+func ParseUV(buf []byte) (*UV, error) {
 	buf = bytes.TrimSpace(buf)
 	sep := []byte(" ")
 	parts := bytes.Split(buf, sep)
 
 	var u, v, w float64
+	w = -1
 	var err error
 
 	if len(parts) < 3 || len(parts) > 4 {
-		return nil, errors.New("Incorrect Format")
+		return nil, fmt.Errorf("incorrect format: %q", buf)
 	}
 
-	if u, err = strconv.ParseFloat(string(parts[1]), 64); err != nil {
+	if err = math.ParseFloat64(parts[1], &u); err != nil {
 		return nil, err
 	}
 
-	if v, err = strconv.ParseFloat(string(parts[2]), 64); err != nil {
+	if err = math.ParseFloat64(parts[2], &v); err != nil {
 		return nil, err
 	}
 
-	w = -1
 	if len(parts) == 4 {
-		if w, err = strconv.ParseFloat(string(parts[3]), 64); err != nil {
+		if err = math.ParseFloat64(parts[3], &w); err != nil {
 			return nil, err
 		}
 	}
-	return &UV{index: 1, u: u, v: v, w: w}, nil
+
+	return &UV{
+		Index: 1,
+		U:     u,
+		V:     v,
+		W:     w,
+	}, nil
 }

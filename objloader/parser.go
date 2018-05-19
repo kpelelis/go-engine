@@ -21,7 +21,7 @@ type FileReader struct {
 // Read in FileReader, accepts a filename and reads it in chunks equal to the
 // page size of the OS (TODO: Test different buffer sizes).
 func (fr *FileReader) Read() (*Obj, error) {
-	pagesize := os.Getpagesize()
+	pagesize := 64 * os.Getpagesize()
 	buf := make([]byte, pagesize)
 
 	var obj Obj
@@ -61,55 +61,52 @@ func (fr *FileReader) parseLine(buf []byte, o *Obj) error {
 	// Remove trailing and leading space
 	buf = bytes.TrimSpace(buf)
 
+	switch {
 	// Comment
-	if buf[0] == '#' {
+	case buf[0] == '#':
 		return nil
-	}
 
 	// Vertex
-	if buf[0] == 'v' && buf[1] == ' ' {
-		vertex, err := parseVertex(buf)
+	case buf[0] == 'v' && buf[1] == ' ':
+		vertex, err := ParseVertex(buf)
 		if err != nil {
 			return err
 		}
-		vertex.index = int64(len(o.Vertices) + 1)
+		vertex.Index = int64(len(o.Vertices) + 1)
 		o.Vertices = append(o.Vertices, *vertex)
-	}
 
 	// UV
-	if buf[0] == 'v' && buf[1] == 't' {
-		uv, err := parseUV(buf)
+	case buf[0] == 'v' && buf[1] == 't':
+		uv, err := ParseUV(buf)
 		if err != nil {
 			return err
 		}
-		uv.index = int64(len(o.UVs) + 1)
+		uv.Index = int64(len(o.UVs) + 1)
 		o.UVs = append(o.UVs, *uv)
-	}
 
 	// Normal
-	if buf[0] == 'v' && buf[1] == 'n' {
-		normal, err := parseNormal(buf)
+	case buf[0] == 'v' && buf[1] == 'n':
+		normal, err := ParseNormal(buf)
 		if err != nil {
 			return err
 		}
-		normal.index = int64(len(o.Normals) + 1)
+		normal.Index = int64(len(o.Normals) + 1)
 		o.Normals = append(o.Normals, *normal)
-	}
 
 	// Triangle
-	if buf[0] == 'f' && buf[1] == ' ' {
-		triangle, err := parseTriangle(buf)
+	case buf[0] == 'f' && buf[1] == ' ':
+		triangle, err := ParseTriangle(buf)
 		if err != nil {
 			return err
 		}
-		triangle.index = int64(len(o.Triangles) + 1)
+		triangle.Index = int64(len(o.Triangles) + 1)
 		o.Triangles = append(o.Triangles, *triangle)
 	}
 
 	return nil
 }
 
-func NewWavefrontReader(filename string) (WavefrontReader, error) {
+func New(filename string) (WavefrontReader, error) {
 	fd, err := os.Open(filename)
 	if err != nil {
 		return nil, err
