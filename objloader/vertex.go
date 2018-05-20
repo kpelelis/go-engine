@@ -8,11 +8,11 @@ import (
 )
 
 type Vertex struct {
-	Index int64
-	X     float64
-	Y     float64
-	Z     float64
-	W     float64
+	Index int32
+	X     float32
+	Y     float32
+	Z     float32
+	W     float32
 }
 
 func ParseVertex(buf []byte) (*Vertex, error) {
@@ -24,25 +24,25 @@ func ParseVertex(buf []byte) (*Vertex, error) {
 		return nil, fmt.Errorf("incorrect format: %q", buf)
 	}
 
-	var x, y, z, w float64
+	var x, y, z, w float32
 	w = -1
 
 	var err error
 
-	if err = math.ParseFloat64(parts[1], &x); err != nil {
+	if err = math.ParseFloat32(parts[1], &x); err != nil {
 		return nil, err
 	}
 
-	if err = math.ParseFloat64(parts[2], &y); err != nil {
+	if err = math.ParseFloat32(parts[2], &y); err != nil {
 		return nil, err
 	}
 
-	if err = math.ParseFloat64(parts[3], &z); err != nil {
+	if err = math.ParseFloat32(parts[3], &z); err != nil {
 		return nil, err
 	}
 
 	if len(parts) == 5 {
-		if err = math.ParseFloat64(parts[4], &w); err != nil {
+		if err = math.ParseFloat32(parts[4], &w); err != nil {
 			return nil, err
 		}
 	}

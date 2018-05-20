@@ -6,7 +6,7 @@ import (
 	"github.com/kpelelis/go-engine/objloader"
 )
 
-func trianglesAreEqual(a *objloader.Triangle, b *objloader.Triangle) bool {
+func facesAreEqual(a *objloader.Face, b *objloader.Face) bool {
 	if a.Index != b.Index {
 		return false
 	}
@@ -22,25 +22,31 @@ func trianglesAreEqual(a *objloader.Triangle, b *objloader.Triangle) bool {
 	return true
 }
 
-func TestParseTriangle(t *testing.T) {
-	var triangletestcases = []struct {
-		data     []byte
-		Triangle *objloader.Triangle
+func TestParseFace(t *testing.T) {
+	var facesTestcases = []struct {
+		data []byte
+		Face *objloader.Face
 	}{
-		{[]byte("f 1 1 1"), &objloader.Triangle{-1, [3]objloader.TrianglePoint{
-			objloader.TrianglePoint{1, -1, -1},
-			objloader.TrianglePoint{1, -1, -1},
-			objloader.TrianglePoint{1, -1, -1},
+		{[]byte("f 1 1 1"), &objloader.Face{-1, []objloader.FacePoint{
+			objloader.FacePoint{1, -1, -1},
+			objloader.FacePoint{1, -1, -1},
+			objloader.FacePoint{1, -1, -1},
 		}}},
-		{[]byte("f 1//2 1/2/3 1/2"), &objloader.Triangle{-1, [3]objloader.TrianglePoint{
-			objloader.TrianglePoint{1, -1, 2},
-			objloader.TrianglePoint{1, 2, 3},
-			objloader.TrianglePoint{1, 2, -1},
+		{[]byte("f 1//2 1/2/3 1/2"), &objloader.Face{-1, []objloader.FacePoint{
+			objloader.FacePoint{1, -1, 2},
+			objloader.FacePoint{1, 2, 3},
+			objloader.FacePoint{1, 2, -1},
 		}}},
-		{[]byte("f 1/2/2 1/2 1/2"), &objloader.Triangle{-1, [3]objloader.TrianglePoint{
-			objloader.TrianglePoint{1, 2, 2},
-			objloader.TrianglePoint{1, 2, -1},
-			objloader.TrianglePoint{1, 2, -1},
+		{[]byte("f 1//2 1/2/3 1/2 1/2/3"), &objloader.Face{-1, []objloader.FacePoint{
+			objloader.FacePoint{1, -1, 2},
+			objloader.FacePoint{1, 2, 3},
+			objloader.FacePoint{1, 2, -1},
+			objloader.FacePoint{1, 2, 3},
+		}}},
+		{[]byte("f 1/2/2 1/2 1/2"), &objloader.Face{-1, []objloader.FacePoint{
+			objloader.FacePoint{1, 2, 2},
+			objloader.FacePoint{1, 2, -1},
+			objloader.FacePoint{1, 2, -1},
 		}}},
 		{[]byte("f 1/2"), nil},
 		{[]byte("f 0.25 1 "), nil},
@@ -48,12 +54,12 @@ func TestParseTriangle(t *testing.T) {
 		{[]byte("f 0.25 foobar "), nil},
 		{[]byte(""), nil},
 	}
-	for _, testcase := range triangletestcases {
-		name := "parseTriangle"
+	for _, testcase := range facesTestcases {
+		name := "parseFace"
 		t.Run(name, func(t *testing.T) {
-			triangle, err := objloader.ParseTriangle(testcase.data)
+			face, err := objloader.ParseFace(testcase.data)
 
-			ok := (err == nil && trianglesAreEqual(triangle, testcase.Triangle)) || (err != nil && triangle == nil)
+			ok := (err == nil && facesAreEqual(face, testcase.Face)) || err != nil
 
 			if !ok {
 				t.Errorf("Failed testcase %v with error %v", string(testcase.data), err)

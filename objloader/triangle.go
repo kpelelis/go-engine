@@ -7,59 +7,63 @@ import (
 	"github.com/kpelelis/go-engine/math"
 )
 
-type TrianglePoint struct {
-	VertexIndex int64
-	UVIndex     int64
-	NormalIndex int64
+type FacePoint struct {
+	VertexIndex int32
+	UVIndex     int32
+	NormalIndex int32
 }
 
-type Triangle struct {
-	Index  int64
-	Points []TrianglePoint
+type Face struct {
+	Index  int32
+	Points []FacePoint
 }
 
 var spaceSep = []byte(" ")
+var slashSep = []byte("/")
 
-func ParseTriangle(buf []byte) (*Triangle, error) {
+func ParseFace(buf []byte) (*Face, error) {
 	parts := bytes.Split(buf, spaceSep)
 
-	slashSep := []byte("/")
-	var points []TrianglePoint
-	for _, triangledata := range parts[1:] {
-		tuple := bytes.Split(triangledata, slashSep)
+	if len(parts) < 4 {
+		return nil, fmt.Errorf("Incorrect face format %q", string(buf))
+	}
+
+	var points []FacePoint
+	for _, faceData := range parts[1:] {
+		tuple := bytes.Split(faceData, slashSep)
 
 		if len(tuple) < 1 || len(tuple) > 3 {
-			return nil, fmt.Errorf("incorrect format: %q", triangledata)
+			return nil, fmt.Errorf("incorrect format: %q", faceData)
 		}
 
-		var vertexIndex, UVIndex, normalIndex int64 = -1, -1, -1
+		var vertexIndex, UVIndex, normalIndex int32 = -1, -1, -1
 		var err error
 
-		if err = math.ParseInt64(tuple[0], &vertexIndex); err != nil {
+		if err = math.ParseInt32(tuple[0], &vertexIndex); err != nil {
 			return nil, err
 		}
 
 		// This should happen when we have v1/v2 or v1/v2/v3
 		if len(tuple) > 1 && len(tuple[1]) > 0 {
-			if err = math.ParseInt64(tuple[1], &UVIndex); err != nil {
+			if err = math.ParseInt32(tuple[1], &UVIndex); err != nil {
 				return nil, err
 			}
 		}
 
 		// This should be parsed if we have v1/v2/v3 or v1//v3
 		if len(tuple) == 3 {
-			if err = math.ParseInt64(tuple[2], &normalIndex); err != nil {
+			if err = math.ParseInt32(tuple[2], &normalIndex); err != nil {
 				return nil, err
 			}
 		}
 
-		points = append(points, TrianglePoint{
+		points = append(points, FacePoint{
 			VertexIndex: vertexIndex,
 			UVIndex:     UVIndex,
 			NormalIndex: normalIndex,
 		})
 	}
-	return &Triangle{
+	return &Face{
 		Index:  -1,
 		Points: points,
 	}, nil

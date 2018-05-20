@@ -8,10 +8,10 @@ import (
 )
 
 type UV struct {
-	Index int64
-	U     float64
-	V     float64
-	W     float64
+	Index int32
+	U     float32
+	V     float32
+	W     float32
 }
 
 func ParseUV(buf []byte) (*UV, error) {
@@ -19,7 +19,7 @@ func ParseUV(buf []byte) (*UV, error) {
 	sep := []byte(" ")
 	parts := bytes.Split(buf, sep)
 
-	var u, v, w float64
+	var u, v, w float32
 	w = -1
 	var err error
 
@@ -27,16 +27,16 @@ func ParseUV(buf []byte) (*UV, error) {
 		return nil, fmt.Errorf("incorrect format: %q", buf)
 	}
 
-	if err = math.ParseFloat64(parts[1], &u); err != nil {
+	if err = math.ParseFloat32(parts[1], &u); err != nil {
 		return nil, err
 	}
 
-	if err = math.ParseFloat64(parts[2], &v); err != nil {
+	if err = math.ParseFloat32(parts[2], &v); err != nil {
 		return nil, err
 	}
 
 	if len(parts) == 4 {
-		if err = math.ParseFloat64(parts[3], &w); err != nil {
+		if err = math.ParseFloat32(parts[3], &w); err != nil {
 			return nil, err
 		}
 	}
